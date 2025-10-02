@@ -49,8 +49,10 @@ class ClientChannel extends ClientChannelBase {
   ClientCall<Q, R> createCall<Q, R>(ClientMethod<Q, R> method, Stream<Q> requests, CallOptions options) {
     var newPath = method.path;
     if (host is String){
-      var uri = Uri.parse(host as String);
-      newPath = joinPathComponents(uri.path, method.path);
+      var fragments = (host as String).replaceFirst(RegExp(r'^\w*://'), '').split('/');
+      fragments.removeAt(0);
+      var pathPrefix = fragments.join('/');
+      newPath = joinPathComponents(pathPrefix, method.path);
     } else if (host is InternetAddress){
       newPath = joinPathComponents((host as InternetAddress).address, newPath);
     }
