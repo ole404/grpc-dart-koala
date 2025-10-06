@@ -52,7 +52,8 @@ class ClientChannel extends ClientChannelBase {
       var fragments = (host as String).replaceFirst(RegExp(r'^\w*://'), '').split('/');
       fragments.removeAt(0);
       var pathPrefix = fragments.join('/');
-      newPath = joinPathComponents(pathPrefix, method.path);
+
+      newPath = joinPathComponents(pathPrefix, method.path.replaceFirst(RegExp(r'^/'), ""));
     } else if (host is InternetAddress){
       newPath = joinPathComponents((host as InternetAddress).address, newPath);
     }
