@@ -16,6 +16,8 @@
 import 'dart:io';
 import 'dart:vmservice_io';
 
+import 'package:path/path.dart' as p;
+
 import '../../grpc_connection_interface.dart' show ClientCall;
 import '../../service_api.dart' show ClientMethod;
 import 'call.dart';
@@ -49,15 +51,13 @@ class ClientChannel extends ClientChannelBase {
   ClientCall<Q, R> createCall<Q, R>(ClientMethod<Q, R> method, Stream<Q> requests, CallOptions options) {
     var newPath = method.path;
     if (host is String){
-      var fragments = (host as String).replaceFirst(RegExp(r'^\w*://'), '').split('/');
+      var fragments = (host as String).replaceFirst(RegExp(r'^\w*:///?'), '').split('/');
       fragments.removeAt(0);
       var pathPrefix = fragments.join('/');
+      newPath = newPath.replaceFirst(RegExp(r'^/'), '');
 
-      newPath = joinPathComponents(pathPrefix, method.path.replaceFirst(RegExp(r'^/'), ''));
-    } else if (host is InternetAddress){
-      newPath = joinPathComponents((host as InternetAddress).address, newPath);
+      newPath = '/'+p.join(pathPrefix, newPath);
     }
-
     var newMethod = ClientMethod(newPath, method.requestSerializer, method.responseDeserializer);
     return super.createCall(newMethod, requests, options);
   }
