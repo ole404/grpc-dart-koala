@@ -51,12 +51,13 @@ class ClientChannel extends ClientChannelBase {
   ClientCall<Q, R> createCall<Q, R>(ClientMethod<Q, R> method, Stream<Q> requests, CallOptions options) {
     var newPath = method.path;
     if (host is String){
-      var fragments = (host as String).replaceFirst(RegExp(r'^\w*:///?'), '').split('/');
+      final pathContext = p.Context(style: p.Style.url);
+      final fragments = (host as String).replaceFirst(RegExp(r'^\w*:///?'), '').split('/');
       fragments.removeAt(0);
-      var pathPrefix = fragments.join('/');
+      final pathPrefix = fragments.join('/');
       newPath = newPath.replaceFirst(RegExp(r'^/'), '');
 
-      newPath = '/'+p.join(pathPrefix, newPath);
+      newPath = '/'+pathContext.join(pathPrefix, newPath);
     }
     var newMethod = ClientMethod(newPath, method.requestSerializer, method.responseDeserializer);
     return super.createCall(newMethod, requests, options);
